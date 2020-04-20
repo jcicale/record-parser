@@ -1,8 +1,8 @@
-(ns record-parser.cli.core
+(ns record-parser.core
   (:require [clojure.string :as string]
             [clojure.tools.cli :as cli]
             [clojure.java.io :as io]
-            [record-parser.common.parse :as parse])
+            [record-parser.parse :as parse])
   (:gen-class))
 
 (def cli-options
@@ -62,15 +62,17 @@
               (parse/parse-record line))))
         (case (first arguments)
           "parse-gender"
-          (let [rows (parse/produce-output :gender-lname-asc)]
+          (let [rows (parse/sort-output compare :gender :lastName)]
             (print-table rows))
           "parse-birthdate"
-          (let [rows (parse/produce-output :dob-asc)]
+          (let [rows (parse/sort-output compare :birthDate)]
             (print-table rows))
           "parse-last-name"
-          (let [rows (parse/produce-output :lname-des)]
+          (let [rows (parse/sort-output #(compare %2 %1) :lastName)]
             (print-table rows))
           :otherwise (exit usage summary)))
 
       (catch Exception e
-        (exit "An error occurred." 1)))))
+        (if (:message (ex-data e))
+          (exit (:message (ex-data e)) 1)
+          (exit (str "An error occurred: " (.getMessage ^Throwable e)) 1))))))
