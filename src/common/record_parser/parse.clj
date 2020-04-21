@@ -15,7 +15,7 @@
           (swap! records #(conj % record))
           (assoc record :birthDate (format "M/d/YYYY" (:birthDate record))))
         (catch DateTimeParseException e
-          (throw (ex-info (.getMessage ^Throwable e) {:error :bad-input :status 400 :message "Date should be an ISO string."})))))))
+          (throw (ex-info (ex-message e) {:error :bad-input :status 400 :message "Date should be an ISO string."})))))))
 
 (defn sort-output [comparator & ks]
   (->> @records

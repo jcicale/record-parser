@@ -1,4 +1,4 @@
-(ns record-parser.core
+(ns record-parser.cli
   (:require [clojure.string :as string]
             [clojure.tools.cli :as cli]
             [clojure.java.io :as io]
@@ -8,7 +8,7 @@
 (def cli-options
   [["-f" "--file <filepath1,filepath2,...>" "Comma separated list of paths to the input files"
     :parse-fn (fn [s] (set (string/split s #",")))
-    :validate [(fn [ps] (not-any? false? (map #(.exists (io/file %)) ps))) "No file exists at the supplied path"]]
+    :validate [(fn [ps] (not-any? #(.exists (io/file %)) ps)) "No file exists at the supplied path"]]
    ["-h" "--help"]])
 
 (defn usage [options-summary]
@@ -27,27 +27,36 @@
   (str "The following errors occurred while parsing your command:\n\n"
        (string/join \newline errors)))
 
-(defn log [& strings]
-  (do (apply print strings) (flush)))
-
-(defn exit
-  ([] (exit ""))
-  ([msg] (exit msg 0))
-  ([msg status]
-   (do (log msg \newline) (flush) (System/exit status))))
+(defn exit [msg status]
+   (do (println msg) (System/exit status)))
 
 (defn print-table [rows]
   (let [header    ["Last Name" "First Name" "Gender" "Favorite Color" "Birthday"]
         formatter "%-15s%-15s%-15s%-20s%-15s"]
-    (log (apply (partial format formatter) header) \newline)
+    (println (apply (partial format formatter) header))
     (doseq [row rows]
-      (log (apply (partial format formatter) (vals row)) \newline))))
+      (println (apply (partial format formatter) (vals row))))))
+
+(defn populate-records [files]
+  (doseq [file files]
+    (with-open [rdr (io/reader file)]
+      (doseq [line (line-seq rdr)]
+        (parse/parse-record line)))))
+
+(def dispatch-map {"parse-gender"    {:sort-keys [:gender :lastName] :comparator compare}
+                   "parse-birthdate" {:sort-keys [:birthDate] :comparator compare}
+                   "parse-last-name" {:sort-keys [:lastName] :comparator #(compare %2 %1)}})
+
+(defn produce-output [arguments summary]
+  (if-some [{:keys [sort-keys comparator]} (dispatch-map (first arguments))]
+    (print-table (apply parse/sort-output comparator sort-keys))
+    (exit (usage summary) 1)))
 
 (defn -main [& args]
   (let [{:keys [options arguments errors summary]} (cli/parse-opts args cli-options)]
     (cond
       (:help options)
-      (exit (usage summary))
+      (exit (usage summary) 0)
       (not= (count arguments) 1)
       (do (println "Arguments received were: " (pr-str arguments))
           (exit (usage summary) 1))
@@ -56,23 +65,10 @@
 
     (try
       (let [files (:file options)]
-        (doseq [file files]
-          (with-open [rdr (io/reader file)]
-            (doseq [line (line-seq rdr)]
-              (parse/parse-record line))))
-        (case (first arguments)
-          "parse-gender"
-          (let [rows (parse/sort-output compare :gender :lastName)]
-            (print-table rows))
-          "parse-birthdate"
-          (let [rows (parse/sort-output compare :birthDate)]
-            (print-table rows))
-          "parse-last-name"
-          (let [rows (parse/sort-output #(compare %2 %1) :lastName)]
-            (print-table rows))
-          :otherwise (exit usage summary)))
+        (populate-records files)
+        (produce-output arguments summary))
 
       (catch Exception e
-        (if (:message (ex-data e))
-          (exit (:message (ex-data e)) 1)
-          (exit (str "An error occurred: " (.getMessage ^Throwable e)) 1))))))
+        (let [message (or (:message (ex-data e))
+                          (str "An error occurred: " (.getMessage ^Throwable e)))]
+          (exit message 1))))))

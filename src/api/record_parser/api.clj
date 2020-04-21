@@ -1,4 +1,4 @@
-(ns record-parser.core
+(ns record-parser.api
   (:require [compojure.core :refer :all]
             [ring.adapter.jetty :refer [run-jetty]]
             [ring.middleware.json :refer [wrap-json-response]]
@@ -30,7 +30,7 @@
        :headers {}
        :body    (parse/parse-record (slurp (:body request)))}))
 
-  (route/not-found "Page not found"))
+  (route/not-found "Resource not found"))
 
 (defn wrap-error-handling [handler]
   (fn [request]
