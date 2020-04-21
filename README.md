@@ -50,6 +50,16 @@ The GET endpoints are:
 
 Feel free to pipe the result through `jq` or visit the endpoints in your browser if you have a json formatter extension.
 
+#### Test Coverage
+
+To run tests, run:
+
+```lein test```
+
+To view a report of the test coverage, run:
+
+```lein cloverage```
+
 #### Assumptions and Notes
  - The CLI tool is not interactive (e.g. multiple outputs will require multiple runs of the tool with the same data)
  - The input files do not contain header rows
