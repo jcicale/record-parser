@@ -51,4 +51,4 @@
       (wrap-json-response)))
 
 (defn -main [& args]
-  (run-jetty (fn [req] (#'app req)) {:port 3000 :join? true}))
+  (run-jetty (fn [req] (#'app req)) {:port 3000}))

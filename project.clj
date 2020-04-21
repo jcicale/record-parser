@@ -16,8 +16,7 @@
 
    :api {:dependencies [[compojure "1.6.1"]
                         [ring "1.8.0"]
-                        [ring/ring-json "0.5.0"]
-                        [ring/ring-jetty-adapter "1.8.0"]]
+                        [ring/ring-json "0.5.0"]]
          :source-paths ["src/api"]
          :main         record-parser.api
          :uberjar-name "record-parser-api.jar"}
@@ -27,6 +26,8 @@
    :uberjar {:aot :all}
 
    :test [:cli :api]}
+
+  :auto-clean false
 
   :plugins
   [[lein-cloverage "1.1.2"]])

@@ -7,7 +7,7 @@
 
 (defn parse-record [record]
   (let [[lname fname gender fcolor dob :as data] (string/split record #"[\s|,|\|]+")]
-    (if (> 5 (count data))
+    (if (not= 5 (count data))
       (throw (ex-info "Incorrect number of columns submitted." {:error :bad-input :status 400 :message "Incorrect number of columns submitted."}))
       (try
         (let [record {:lastName lname :firstName fname :gender gender :favoriteColor fcolor :birthDate (LocalDate/parse dob)}]
