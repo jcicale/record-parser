@@ -1,15 +1,16 @@
 # record-parser
 
-
 ## Usage
+
+Prerequisite: You will need to have [leiningen](https://leiningen.org/) installed to build the jars.
 
 First, clone the repository.
 
-Then, from the project root, build the jars:
-
-```lein with-profile cli:api uberjar```
-
 #### CLI Usage
+
+From the project root, build the jar:
+
+```lein with-profile cli uberjar```
 
 To run the CLI jar, the basic command is:
 
@@ -19,10 +20,14 @@ For example,
 
 ```java -jar target/record-parser-cli.jar -f resources/records.csv,resources/records.psv,resources/records.ssv parse-gender```
 
-Will return the view sorted by gender. The available arguments are `parse-gender`, `parse-birthdate`, and `parse-last-name`
+Will return the view of the records in the resources folder, sorted by gender. The available arguments are `parse-gender`, `parse-birthdate`, and `parse-last-name`
 This information can also be viewed by invoking the jar with just the `-h` flag.
 
-#### Rest API Usage
+#### Rest API 
+
+From the project root, build the jar:
+
+```lein with-profile api uberjar```
 
 To start the server, run:
 
@@ -34,12 +39,16 @@ To POST some data, use the following cURL command (any of the delimiter formats 
 
 ```curl -d 'Cicale | Julia | F | Green | 1990-05-24' -H "Content-Type: text/plain" -X POST  http://localhost:3000/records```
 
-To GET the data, you can visit the GET endpoints in your browser:
+The GET endpoints are:
+ - /records/gender
+ - /records/birthdate
+ - /records/name
+ 
+ To GET the data, you can use:
 
- - http://localhost:3000/records/gender
- - http://localhost:3000/records/birthdate
- - http://localhost:3000/records/name
+```curl http://localhost:3000/records/gender```
 
+Feel free to pipe the result through `jq` or visit the endpoints in your browser if you have a json formatter extension.
 
 #### Assumptions and Notes
  - The CLI tool is not interactive (e.g. multiple outputs will require multiple runs of the tool with the same data)

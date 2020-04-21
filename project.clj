@@ -27,7 +27,5 @@
 
    :test [:cli :api]}
 
-  :auto-clean false
-
   :plugins
   [[lein-cloverage "1.1.2"]])
