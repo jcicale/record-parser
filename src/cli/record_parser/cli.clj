@@ -8,7 +8,7 @@
 (def cli-options
   [["-f" "--file <filepath1,filepath2,...>" "Comma separated list of paths to the input files"
     :parse-fn (fn [s] (set (string/split s #",")))
-    :validate [(fn [ps] (not-any? #(.exists (io/file %)) ps)) "No file exists at the supplied path"]]
+    :validate [(fn [ps] (not-any? false? (map #(.exists (io/file %)) ps))) "No file exists at the supplied path"]]
    ["-h" "--help"]])
 
 (defn usage [options-summary]
