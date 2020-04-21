@@ -16,7 +16,7 @@
   (is (= "The following errors occurred while parsing your command:\n\nerror 1\nerror 2" (error-msg ["error 1" "error 2"]))))
 
 (deftest populate-records-test
-  (is (= 0 (count @parse/records)))
+  (is (empty? @parse/records))
   (populate-records #{"resources/records.csv" "resources/records.psv" "resources/records.ssv"})
   (is (= 12 (count @parse/records))))
 

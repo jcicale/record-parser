@@ -53,7 +53,7 @@
            (parse-string body true)))))
 
 (deftest post
-  (is (= 0 (count @parse/records)))
+  (is (empty? @parse/records))
   (let [{:keys [status headers body]} (app {:request-method :post :uri "/records" :body (ByteArrayInputStream. (.getBytes "Cicale | Julia | F | Green | 1990-05-24"))})]
     (is (= 200 status))
     (is (json-response? headers))
@@ -62,9 +62,9 @@
     (is (= 1 (count @parse/records)))))
 
 (deftest post-bad-request
-  (is (= 0 (count @parse/records)))
+  (is (empty? @parse/records))
   (let [{:keys [status headers body]} (app {:request-method :post :uri "/records" :body (ByteArrayInputStream. (.getBytes "Cicale | Julia | F | Green"))})]
     (is (= 400 status))
     (is (json-response? headers))
     (is (= {:message "Incorrect number of columns submitted."} (parse-string body true)))
-    (is (= 0 (count @parse/records)))))
+    (is (empty? @parse/records))))
